@@ -1,0 +1,23 @@
+export const CHART_COLORS = {
+  red: 'rgb(255, 99, 132)',
+  orange: 'rgb(255, 159, 64)',
+  yellow: 'rgb(255, 205, 86)',
+  green: 'rgb(75, 192, 192)',
+  blue: 'rgb(54, 162, 235)',
+  purple: 'rgb(153, 102, 255)',
+  grey: 'rgb(201, 203, 207)',
+  pink: 'rgb(255, 99, 172)',
+  lightOrange: 'rgb(255, 179, 71)',
+  lime: 'rgb(182, 255, 87)',
+  teal: 'rgb(72, 192, 192)',
+  skyBlue: 'rgb(135, 206, 250)',
+  indigo: 'rgb(75, 0, 130)',
+  lightGrey: 'rgb(211, 211, 211)',
+  magenta: 'rgb(255, 0, 255)',
+  peach: 'rgb(255, 218, 185)',
+  olive: 'rgb(107, 142, 35)',
+  aqua: 'rgb(0, 255, 255)',
+  royalBlue: 'rgb(65, 105, 225)',
+  darkPurple: 'rgb(128, 0, 128)',
+  silver: 'rgb(192, 192, 192)'
+};
