@@ -15,11 +15,9 @@ import Feedback from './feedback/Feedback';
 
 function App() {
   const [query, setQuestion] = useState<string>('');
-  const [userQuery, setUserQuery] = useState<string>('');
-  const [messages, setMessages] = useState<any>([{ text: 'Hello! How can I assist you today?', sender: 'bot', chart: {}, table: {} }]);
+  const [messages, setMessages] = useState<any>([{ text: 'Hello! How can I assist you today?', sender: 'bot', chart: {}, table: {}, user_query: '' }]);
   const [loading, setLoading] = useState<boolean>(false);
   const [resID, setResID] = useState('');
-
 
   const messagesContainerRef = useRef<any>(null);
   const scrollToBottom = () => {
@@ -33,31 +31,29 @@ function App() {
   }, [messages]);
 
   const submitQuestion = async () => {
-    setUserQuery(query);
     setQuestion('');
     setLoading(true);
     setResID('');
-    let botMessage: any = { text: '', sender: 'bot', chart: {}, table: {} };
+    let botMessage: any = { text: '', sender: 'bot', chart: {}, table: {}, user_query: query };
     const userMessage = { text: query, sender: 'user' };
 
     try {
-      const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
+      const response = await axios.post('http://127.0.0.1:5000/query', { query });
       const data = await response.data.results;
       const id = await response.data.id
       setResID(id)
 
       setMessages([...messages, userMessage]);
 
+
       switch (true) {
-        case query.toLowerCase().includes('text') ||
-          (!query.toLowerCase().includes('text') &&
-            !['chart', 'graph', 'table'].some(term => query.toLowerCase().includes(term))):
+        case data.text !== undefined:
           botMessage.text = data.text;
           break;
-        case query.toLowerCase().includes('chart'):
+        case data.type === 'doughnut' && data.labels !== undefined && data.data !== undefined:
           botMessage.text = 'Here is a chart you requested.';
           botMessage.chart = {
-            type: 'doughnut',
+            type: data.type,
             data: {
               labels: data.labels,
               datasets: [
@@ -78,10 +74,10 @@ function App() {
             },
           };
           break;
-        case query.toLowerCase().includes('graph'):
+        case data.type === 'bar' && data.labels !== undefined && data.data !== undefined:
           botMessage.text = 'Here is a graph you requested.';
           botMessage.chart = {
-            type: 'bar',
+            type: data.type,
             data: {
               labels: data.labels,
               datasets: [
@@ -98,7 +94,7 @@ function App() {
             },
           };
           break;
-        case query.toLowerCase().includes('table'):
+        case data.headers !== undefined && data.rows !== undefined:
           botMessage.text = 'Here is a table you requested.';
           botMessage.table = {
             headers: data.headers,
@@ -144,11 +140,21 @@ function App() {
               {message.sender === 'bot' && (
                 <div className="icon-container">
                   <HeadsetMicIcon />
-                  <ExportData user_query={userQuery} message={message} />
+
                 </div>
               )}
               <div className={`${message.sender}-container`}>
                 <div className={`message ${message.sender}`}>
+                  <div className='upper-right'>
+                    {message.sender === 'bot' && !loading && latestMessage === message && index !== 0 && (
+                      <Feedback
+                        id={resID}
+                      />
+                    )}
+                    {message.sender === 'bot' && !loading && index !== 0 && (
+                      <ExportData message={message} />
+                    )}
+                  </div>
                   <p>{message.text}</p>
                   {message.chart && Object.keys(message.chart).length > 0 && (
                     <div className='chatbot-chart-style' key={index}>
@@ -186,14 +192,9 @@ function App() {
 
               </div>
               {message.sender === 'user' && (
-                <div className="icon-container-user">
+                <div className="icon-container-user" style={{ alignSelf: 'center' }}>
                   <PersonIcon />
                 </div>
-              )}
-              {message.sender === 'bot' && !loading && latestMessage === message && (
-                <Feedback
-                  id={resID}
-                />
               )}
             </div>
 
@@ -230,7 +231,7 @@ function App() {
           className="input-field"
           onKeyPress={(e) => e.key === 'Enter' && submitQuestion()}
         />
-        <button onClick={handleReset} disabled={loading} className={`send-button chat-reset-button ${loading ? 'disabled' : ''}`}>
+        <button onClick={handleReset} disabled={loading} className={`send-button chat-reset-button ${loading ? 'disabled' : ''}`} style={{ backgroundColor: '#1b3765' }}>
           <RestartAltIcon />
         </button>
 
