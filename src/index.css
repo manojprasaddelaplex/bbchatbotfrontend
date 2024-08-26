@@ -20,8 +20,8 @@ code {
 
 .feedback{
   display: flex;
-    color: #606060;
-    gap: 15px;
-    margin-left: -55px;
-    margin-top: 9px;
+    gap: 12px;
+    /* margin-left: -45px; */
+    margin-top: 7px;
+    padding-right: 15px;
 }

@@ -1,0 +1,8 @@
+.download{
+    display: flex;
+    margin-top: 6px;
+    height: 20px;
+    width: 20px;
+    border: none;
+    cursor: pointer;
+}

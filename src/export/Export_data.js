@@ -1,18 +1,20 @@
 import React, { useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import html2canvas from 'html2canvas';
-import DownloadSharpIcon from '@mui/icons-material/DownloadSharp';
 import { Chart } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
+// import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
+import './Export_data.css';
 
-const ExportData = ({ message, user_query }) => {
+
+const ExportData = ({ message }) => {
     const chartRef = useRef(null);
-    const convertMessageToCSVData = (message, user_query) => {
+    const convertMessageToCSVData = (message) => {
         const csvData = [];
 
         // Add user_query at the top of the CSV data
-        if (user_query) {
-            csvData.push([`User Query: ${user_query}`]);
+        if (message.user_query) {
+            csvData.push([`User Query: ${message.user_query}`]);
             csvData.push([]); // Add an empty row for separation
         }
 
@@ -44,8 +46,8 @@ const ExportData = ({ message, user_query }) => {
                 });
 
                 // Add user_query at the top of the PDF
-                if (user_query) {
-                    pdf.text(`User Query: ${user_query}`, 10, 10);
+                if (message.user_query) {
+                    pdf.text(`User Query: ${message.user_query}`, 10, 10);
                 }
 
                 pdf.addImage(imgData, 'PNG', 0, 20, canvas.width, canvas.height); // Adjust Y position for chart
@@ -56,23 +58,22 @@ const ExportData = ({ message, user_query }) => {
         }
     };
 
-    const csvData = convertMessageToCSVData(message, user_query);
+    const csvData = convertMessageToCSVData(message, message.user_query);
     const fileName = `chatbot-response-${new Date().toISOString()}.csv`;
 
     return (
         <div>
             {message.chart && Object.keys(message.chart).length > 0 ? (
                 <>
-                    <button onClick={downloadChartAsPDF} className="download-button">
-                        <DownloadSharpIcon />
+                    <button onClick={downloadChartAsPDF} style={{border:'none', backgroundColor:'transparent', padding:0}}>
+                        <img src="report.svg" alt="Download" title='Download to PDF' className='download'/>
                     </button>
-                    {/* Off-screen chart container, but within the viewport */}
                     <div
                         id="chart-container"
                         ref={chartRef}
                         style={{
                             position: 'fixed',
-                            top: '-10000px', // Off-screen but within renderable area
+                            top: '-10000px', 
                             left: '-10000px', 
                             width: '600px',
                             height: '400px',
@@ -83,8 +84,9 @@ const ExportData = ({ message, user_query }) => {
                     </div>
                 </>
             ) : (
-                <CSVLink data={csvData} filename={fileName} className="download-csv-link">
-                    <DownloadSharpIcon />
+                <CSVLink data={csvData} filename={fileName} className="download">
+                    {/* <FaFileExcel title='Download Excel'/> */}
+                    <img src="report.svg" alt="Download" title='Download to Excel'/>
                 </CSVLink>
             )}
         </div>
