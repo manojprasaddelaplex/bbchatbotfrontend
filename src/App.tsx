@@ -104,7 +104,10 @@ function App() {
         default:
           botMessage.text = data.text;
       }
-    } catch (error: any) {
+    } catch (error: any)
+    {
+      const errorId = error.response.data.id;
+      setResID(errorId);
       botMessage.text = "Some error occurred!!";
     }
 
