@@ -1,127 +1,167 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './App.scss';
 import 'chart.js/auto';
 import { Chart } from 'react-chartjs-2';
-import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
-import PersonIcon from '@mui/icons-material/Person';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import SendIcon from '@mui/icons-material/Send';
+import { HeadsetMic as HeadsetMicIcon, Person as PersonIcon, RestartAlt as RestartAltIcon, Send as SendIcon } from '@mui/icons-material';
 import ExportData from './export/Export_data';
 import axios from 'axios';
 import { CHART_COLORS } from './assets/utils';
 import { DataGrid } from '@mui/x-data-grid';
 import Feedback from './feedback/Feedback';
 
+interface Message {
+  text: string;
+  sender: 'bot' | 'user';
+  chart?: any;
+  table?: {
+    headers: string[];
+    rows: any[];
+  };
+  user_query?: string;
+}
 
 function App() {
-  const [query, setQuestion] = useState<string>('');
-  const [messages, setMessages] = useState<any>([{ text: 'Hello! How can I assist you today?', sender: 'bot', chart: {}, table: {}, user_query: '' }]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [query, setQuery] = useState('');
+  const [messages, setMessages] = useState<Message[]>([{ text: 'Hello! How can I assist you today?', sender: 'bot' }]);
+  const [loading, setLoading] = useState(false);
   const [resID, setResID] = useState('');
 
-  const messagesContainerRef = useRef<any>(null);
-  const scrollToBottom = () => {
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const submitQuestion = async () => {
-    setQuestion('');
+  const submitQuestion = useCallback(async () => {
+    if (!query.trim()) return;
+
+    setQuery('');
     setLoading(true);
     setResID('');
-    let botMessage: any = { text: '', sender: 'bot', chart: {}, table: {}, user_query: query };
-    const userMessage = { text: query, sender: 'user' };
+
+    const userMessage: Message = { text: query, sender: 'user' };
+    let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
-      const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
-      const data = await response.data.results;
-      const id = await response.data.id
-      setResID(id)
+      const response = await axios.post('http://127.0.0.1:5000/query', { query });
+      const { results: data, id } = response.data;
+      setResID(id);
 
-      setMessages([...messages, userMessage]);
-
-
-      switch (true) {
-        case data.text !== undefined:
-          botMessage.text = data.text;
-          break;
-        case data.type === 'doughnut' && data.labels !== undefined && data.data !== undefined:
-          botMessage.text = 'Here is a chart you requested.';
-          botMessage.chart = {
-            type: data.type,
-            data: {
-              labels: data.labels,
-              datasets: [
-                {
-                  label: 'Count',
-                  data: data.data,
-                  backgroundColor: Object.values(CHART_COLORS),
-                  borderWidth: 1,
-                  hoverOffset: 10
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              layout: {
-                padding: 10
-              }
-            },
-          };
-          break;
-        case data.type === 'bar' && data.labels !== undefined && data.data !== undefined:
-          botMessage.text = 'Here is a graph you requested.';
-          botMessage.chart = {
-            type: data.type,
-            data: {
-              labels: data.labels,
-              datasets: [
-                {
-                  label: 'Count',
-                  data: data.data,
-                  backgroundColor: Object.values(CHART_COLORS),
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-            },
-          };
-          break;
-        case data.headers !== undefined && data.rows !== undefined:
-          botMessage.text = 'Here is a table you requested.';
-          botMessage.table = {
-            headers: data.headers,
-            rows: data.rows
-          };
-          break;
-        default:
-          botMessage.text = data.text;
+      if (data.text) {
+        botMessage.text = data.text;
+      } else if (data.type === 'doughnut' || data.type === 'bar') {
+        botMessage.text = `Here is a ${data.type === 'doughnut' ? 'chart' : 'graph'} you requested.`;
+        botMessage.chart = {
+          type: data.type,
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: 'Count',
+              data: data.data,
+              backgroundColor: Object.values(CHART_COLORS),
+              borderWidth: 1,
+              ...(data.type === 'doughnut' && { hoverOffset: 10 })
+            }]
+          },
+          options: {
+            responsive: true,
+            ...(data.type === 'doughnut' && { layout: { padding: 10 } })
+          }
+        };
+      } else if (data.headers && data.rows) {
+        botMessage.text = 'Here is a table you requested.';
+        botMessage.table = { headers: data.headers, rows: data.rows };
       }
-    } catch (error: any)
-    {
+    } catch (error: any) {
       const errorId = error.response.data.id;
+      const errorData = error.response.data.error;
       setResID(errorId);
-      botMessage.text = "Some error occurred!!";
+      botMessage.text = errorData;
+
     }
 
-    setMessages([...messages, userMessage, botMessage]);
+    setMessages(prev => [...prev, userMessage, botMessage]);
     setLoading(false);
-  };
+  }, [query]);
 
-  const handleReset = () => {
-    setQuestion('');
+  const handleReset = useCallback(() => {
+    setQuery('');
     setMessages([{ text: 'Hello! How can I assist you today?', sender: 'bot' }]);
     setLoading(false);
-  };
+  }, []);
 
-  const latestMessage = messages[messages.length - 1];
+  const renderMessage = useCallback((message: Message, index: number) => {
+    const isBot = message.sender === 'bot';
+    const isLatest = index === messages.length - 1;
+
+    return (
+      <div key={index} className='message-wrapper'>
+        {isBot && (
+          <div className="icon-container">
+            <HeadsetMicIcon />
+          </div>
+        )}
+        <div className={`${message.sender}-container`}>
+          <div className={`message ${message.sender}`}>
+            {isBot && !loading && index !== 0 && (
+              <div className='upper-right'>
+                {isLatest && (
+                  <Feedback id={resID} />
+                )}
+                <ExportData message={message} />
+              </div>
+            )}
+            <p>{message.text}</p>
+            {message.chart && <Chart {...message.chart} />}
+            {message.table && (
+              <DataGrid
+                rows={message.table.rows.map((row, rowIndex) => ({
+                  id: rowIndex + 1,
+                  ...Object.fromEntries(message.table!.headers.map((header, i) => [header, row[i]]))
+                }))}
+                columns={message.table.headers.map(header => ({
+                  field: header,
+                  headerName: header,
+                  minWidth: 100,
+                  flex: 1,
+                  headerClassName: 'table-header'
+                }))}
+                initialState={{
+                  pagination: { paginationModel: { pageSize: 5 } },
+                }}
+                pageSizeOptions={[5]}
+                sx={{
+                  '& .MuiDataGrid-menuIconButton': { color: 'white' }
+                }}
+              />
+            )}
+          </div>
+        </div>
+        {!isBot && (
+          <div className="icon-container-user" style={{ alignSelf: 'center' }}>
+            <PersonIcon />
+          </div>
+        )}
+      </div>
+    );
+  }, [loading, messages.length, resID]);
+
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, []);
+  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !loading && query.trim()) {
+      submitQuestion();
+    }
+  }, [loading, query, submitQuestion]);
+  const isSubmitDisabled = useMemo(() => loading || !query.trim(), [loading, query]);
 
   return (
     <div className="chatbot-interface">
@@ -131,80 +171,12 @@ function App() {
             <img src="sonar-logo.png" alt="Logo" />
           </div>
           <div className='right-content'>
-            {/* <h1>ChatBot for Custody Portal</h1> */}
             <p>Sonar ChatBot</p>
           </div>
         </div>
       </div>
       <div className="messages-container" ref={messagesContainerRef}>
-        {messages.map((message: any, index: number) => (
-          <div key={index}>
-            <div className='message-wrapper'>
-              {message.sender === 'bot' && (
-                <div className="icon-container">
-                  <HeadsetMicIcon />
-
-                </div>
-              )}
-              <div className={`${message.sender}-container`}>
-                <div className={`message ${message.sender}`}>
-                  <div className='upper-right'>
-                    {message.sender === 'bot' && !loading && latestMessage === message && index !== 0 && (
-                      <Feedback
-                        id={resID}
-                      />
-                    )}
-                    {message.sender === 'bot' && !loading && index !== 0 && (
-                      <ExportData message={message} />
-                    )}
-                  </div>
-                  <p>{message.text}</p>
-                  {message.chart && Object.keys(message.chart).length > 0 && (
-                    <div className='chatbot-chart-style' key={index}>
-                      <Chart type={message.chart.type} data={message.chart.data} options={message.chart.options} />
-                    </div>
-                  )}
-                  {message.table && message.table.headers && (
-                    <div className='chatbot-table-style' key={index}>
-                      <DataGrid
-                        rows={message.table.rows.map((row: any, rowIndex: any) => ({
-                          id: rowIndex + 1, // Generate a unique ID for each row
-                          ...row.reduce((acc: any, cell: any, cellIndex: any) => {
-                            acc[message.table.headers[cellIndex]] = cell;
-                            return acc;
-                          }, {}),
-                        }))}
-                        columns={message.table.headers.map((header: any) => ({
-                          field: header,
-                          headerName: header,
-                          width: 100,
-                          headerClassName: 'table-header'
-                        }))}
-                        initialState={{
-                          pagination: {
-                            paginationModel: {
-                              pageSize: 5,
-                            },
-                          },
-                        }}
-                        pageSizeOptions={[5]}
-                      />
-                    </div>
-                  )}
-                </div>
-
-              </div>
-              {message.sender === 'user' && (
-                <div className="icon-container-user" style={{ alignSelf: 'center' }}>
-                  <PersonIcon />
-                </div>
-              )}
-            </div>
-
-          </div>
-
-        ))}
-
+        {messages.map(renderMessage)}
         {loading && (
           <div className='bot-loading'>
             <div className='message-wrapper'>
@@ -223,22 +195,29 @@ function App() {
             </div>
           </div>
         )}
-
       </div>
       <div className="input-area">
         <input
           type="text"
           placeholder="Please enter your topic and details for the chart"
           value={query}
-          onChange={(e) => setQuestion(e.target.value)}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
           className="input-field"
-          onKeyPress={(e) => e.key === 'Enter' && submitQuestion()}
         />
-        <button onClick={handleReset} disabled={loading} className={`send-button chat-reset-button ${loading ? 'disabled' : ''}`} style={{ backgroundColor: '#1b3765' }}>
+        <button
+          onClick={handleReset}
+          disabled={loading}
+          className={`send-button chat-reset-button ${loading ? 'disabled' : ''}`}
+          style={{ backgroundColor: '#1b3765' }}
+        >
           <RestartAltIcon />
         </button>
-
-        <button onClick={submitQuestion} disabled={loading || !query} className={`send-button ${loading || !query ? 'disabled' : ''}`}>
+        <button
+          onClick={submitQuestion}
+          disabled={isSubmitDisabled}
+          className={`send-button ${isSubmitDisabled ? 'disabled' : ''}`}
+        >
           <SendIcon />
         </button>
       </div>
