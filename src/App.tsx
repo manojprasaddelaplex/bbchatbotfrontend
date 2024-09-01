@@ -49,7 +49,7 @@ function App() {
     let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/query', { query });
+      const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
       const { results: data, id } = response.data;
       setResID(id);
 
