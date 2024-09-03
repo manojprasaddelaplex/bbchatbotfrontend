@@ -17,7 +17,7 @@ const Feedback: React.FC<FeedbackProps> = ({ id }) => {
     const resID = id;
     const feedback = isCorrect;
     try {
-      await axios.post('https://blueberry.azurewebsites.net/feedback', {
+      await axios.post('https://blueberry-dev.azurewebsites.net/feedback', {
         resID: resID,
         feedback: feedback
       });
