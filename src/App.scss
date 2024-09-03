@@ -291,3 +291,24 @@ canvas{
   display: flex;
   justify-content: flex-end;
 }
+
+.sql-query {
+  background-color: #ffffff; /* Matches bot message background */
+  border-left: 4px solid #1b3765; /* Same as the chatbot header color */
+  padding: 10px 15px; /* Consistent padding with message containers */
+  margin-top: 10px; /* Space between message content and SQL query */
+  border-radius: 5px; /* Slight rounding for smooth appearance */
+  font-family: 'Courier New', Courier, monospace; /* Monospace for code-like appearance */
+  font-size: 0.9rem; /* Slightly smaller for emphasis */
+  color: #333; /* Dark text color for readability */
+  white-space: pre-wrap; /* Preserve formatting */
+  word-break: break-word; /* Handle long lines */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow to lift the element slightly */
+  max-width: 100%; /* Responsive width */
+  overflow-x: auto; /* Allow horizontal scrolling for long SQL queries */
+
+  pre {
+    margin: 0; /* Remove default margin */
+    font-family: inherit; /* Inherit the font-family from the parent div */
+  }
+}
