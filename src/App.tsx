@@ -18,6 +18,7 @@ interface Message {
     rows: any[];
   };
   user_query?: string;
+  sql_query?: string; // New field added
 }
 
 function App() {
@@ -46,11 +47,11 @@ function App() {
     setResID('');
 
     const userMessage: Message = { text: query, sender: 'user' };
-    let botMessage: Message = { text: '', sender: 'bot', user_query: query };
+    let botMessage: Message = { text: '', sender: 'bot', user_query: query};
 
     try {
       const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
-      const { results: data, id } = response.data;
+      const { results: data, id ,sql_query} = response.data;
       setResID(id);
 
       if (data.text) {
@@ -75,15 +76,24 @@ function App() {
           }
         };
       } else if (data.headers && data.rows) {
-        botMessage.text = 'Here is a table you requested.';
+        botMessage.text = `Here is a table you requested.`;
         botMessage.table = { headers: data.headers, rows: data.rows };
       }
+
+      // Extracting sql_query from the response
+      if (sql_query) {
+        botMessage.sql_query = sql_query;
+      }
+
     } catch (error: any) {
       const errorId = error.response.data.id;
       const errorData = error.response.data.error;
+      const errorSqlQuery = error.response.data.sql_query; // Extract SQL query from error response
       setResID(errorId);
       botMessage.text = errorData;
-
+      if (errorSqlQuery) {
+        botMessage.sql_query = errorSqlQuery;
+      }
     }
 
     setMessages(prev => [...prev, userMessage, botMessage]);
@@ -118,6 +128,7 @@ function App() {
               </div>
             )}
             <p>{message.text}</p>
+              
             {message.chart && <Chart {...message.chart} />}
             {message.table && (
               <DataGrid
@@ -141,6 +152,11 @@ function App() {
                 }}
               />
             )}
+            {message.sql_query && (
+              <div className="sql-query">
+                <strong>SQL Query:</strong> <pre>{message.sql_query}</pre>
+              </div>
+            )}
           </div>
         </div>
         {!isBot && (
@@ -151,7 +167,6 @@ function App() {
       </div>
     );
   }, [loading, messages.length, resID]);
-
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
