@@ -127,7 +127,7 @@ function App() {
             {isBot && !loading && index !== 0 && (
               <div className='upper-right'>
                 {isLatest && (
-                  <Feedback id={resID} />
+                  <Feedback id={resID} userQuestion={message.user_query}/>
                 )}
                 <ExportData message={message} />
               </div>
