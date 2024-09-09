@@ -4,10 +4,11 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import axios from 'axios';
 
 interface FeedbackProps {
-  id: string; // New prop for exception
+  id: string;
+  userQuestion: string | undefined; // New prop for exception
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ id }) => {
+const Feedback: React.FC<FeedbackProps> = ({ id, userQuestion }) => {
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(false);
   const [liked, setLiked] = useState<boolean | null>(null);
 
@@ -16,10 +17,13 @@ const Feedback: React.FC<FeedbackProps> = ({ id }) => {
 
     const resID = id;
     const feedback = isCorrect;
+    const userQ = userQuestion;
+    console.log(userQ)
     try {
       await axios.post('https://blueberry.azurewebsites.net/feedback', {
         resID: resID,
-        feedback: feedback
+        feedback: feedback,
+        userQuestion: userQ
       });
       setLiked(isCorrect);
       setFeedbackGiven(true);
