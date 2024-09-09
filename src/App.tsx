@@ -127,7 +127,7 @@ function App() {
             {isBot && !loading && index !== 0 && (
               <div className='upper-right'>
                 {isLatest && (
-                  <Feedback id={resID} userQuestion={message.user_query}/>
+                  <Feedback id={resID} userQuestion={message.user_query} />
                 )}
                 <ExportData message={message} />
               </div>
@@ -202,7 +202,7 @@ function App() {
             <img src="sonar-logo.png" alt="Logo" />
           </div>
           <div className='right-content'>
-            <p>Sonar ChatBot</p>
+            <p>Sonar ChatBot Develop</p>
           </div>
         </div>
       </div>
