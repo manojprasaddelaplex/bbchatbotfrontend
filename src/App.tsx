@@ -51,7 +51,7 @@ function App() {
     let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
-      const response = await axios.post('https://blueberry-dev.azurewebsites.net/query', { query });
+      const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
       const { results: data, id, sql_query } = response.data;
       setResID(id);
 
@@ -202,7 +202,7 @@ function App() {
             <img src="sonar-logo.png" alt="Logo" />
           </div>
           <div className='right-content'>
-            <p>Sonar ChatBot Develop</p>
+            <p>Sonar ChatBot</p>
           </div>
         </div>
       </div>
