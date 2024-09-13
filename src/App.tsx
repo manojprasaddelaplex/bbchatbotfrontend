@@ -18,7 +18,8 @@ interface Message {
     rows: any[];
   };
   user_query?: string;
-  sql_query?: string; // New field added
+  sql_query?: string;
+  similar_questions?: string[];
 }
 
 function App() {
@@ -47,11 +48,11 @@ function App() {
     setResID('');
 
     const userMessage: Message = { text: query, sender: 'user' };
-    let botMessage: Message = { text: '', sender: 'bot', user_query: query};
+    let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
       const response = await axios.post('https://blueberry.azurewebsites.net/query', { query });
-      const { results: data, id ,sql_query} = response.data;
+      const { results: data, id, sql_query } = response.data;
       setResID(id);
 
       if (data.text) {
@@ -88,11 +89,15 @@ function App() {
     } catch (error: any) {
       const errorId = error.response.data.id;
       const errorData = error.response.data.error;
-      const errorSqlQuery = error.response.data.sql_query; // Extract SQL query from error response
+      const errorSqlQuery = error.response.data.sql_query;
+      const similarQuestions = error.response.data.similar_questions;
       setResID(errorId);
       botMessage.text = errorData;
       if (errorSqlQuery) {
         botMessage.sql_query = errorSqlQuery;
+      }
+      if (similarQuestions) {
+        botMessage.similar_questions = similarQuestions;
       }
     }
 
@@ -122,13 +127,13 @@ function App() {
             {isBot && !loading && index !== 0 && (
               <div className='upper-right'>
                 {isLatest && (
-                  <Feedback id={resID} />
+                  <Feedback id={resID} userQuestion={message.user_query} />
                 )}
                 <ExportData message={message} />
               </div>
             )}
             <p>{message.text}</p>
-              
+
             {message.chart && <Chart {...message.chart} />}
             {message.table && (
               <DataGrid
@@ -151,6 +156,17 @@ function App() {
                   '& .MuiDataGrid-menuIconButton': { color: 'white' }
                 }}
               />
+            )}
+            {/* Display similar questions if available */}
+            {message.similar_questions && message.similar_questions.length > 0 && (
+              <div className="similar-questions">
+                <strong>Similar Questions:</strong>
+                <ul>
+                  {message.similar_questions.map((question, index) => (
+                    <li key={index}>{question}</li>
+                  ))}
+                </ul>
+              </div>
             )}
             {message.sql_query && (
               <div className="sql-query">

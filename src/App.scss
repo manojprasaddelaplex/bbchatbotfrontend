@@ -312,3 +312,49 @@ canvas{
     font-family: inherit; /* Inherit the font-family from the parent div */
   }
 }
+
+.similar-questions {
+  background-color: #ffffff;
+  /* Matches the bot message background */
+  border-left: 4px solid #1b3765;
+  /* Consistent with other highlighted sections */
+  padding: 10px 15px;
+  /* Consistent padding with other message containers */
+  margin-top: 10px;
+  /* Space between the message content and similar questions */
+  border-radius: 5px;
+  /* Smooth corners for a modern look */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow to lift the section */
+  font-size: 0.9rem;
+  /* Consistent with other text elements */
+  color: #333;
+  /* Dark text for readability */
+
+  ul {
+    list-style-type: disc;
+    /* Standard bullet points for the list */
+    padding-left: 20px;
+    /* Aligns with typical indentation for lists */
+    margin: 0;
+    /* Removes default margins */
+
+    li {
+      margin-bottom: 8px;
+      /* Spacing between list items */
+      word-wrap: break-word;
+      /* Handle long text */
+    }
+  }
+
+  strong {
+    font-size: 1rem;
+    /* Emphasizes the title */
+    color: #1b3765;
+    /* Same as header for consistency */
+    display: block;
+    /* Forces strong to start on a new line */
+    margin-bottom: 8px;
+    /* Space between title and list */
+  }
+}
