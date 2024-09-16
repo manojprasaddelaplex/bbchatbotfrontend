@@ -94,7 +94,7 @@ const ExportData = ({ message }) => {
 
                 // Add the image to the PDF
                 pdf.addImage(imgData, 'PNG', 0, 40, width, height);
-                pdf.save(`chart-${new Date().toISOString()}.pdf`);
+                pdf.save(`chatbot-response-${new Date().toISOString()}.pdf`);
             } catch (error) {
                 console.error("Failed to download chart as PDF", error);
             } finally {
