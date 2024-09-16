@@ -132,7 +132,7 @@ function App() {
                 <ExportData message={message} />
               </div>
             )}
-            <p>{message.text}</p>
+            <pre className='text_format'>{message.text}</pre>
 
             {message.chart && <Chart {...message.chart} />}
             {message.table && (
