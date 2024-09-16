@@ -358,3 +358,17 @@ canvas{
     /* Space between title and list */
   }
 }
+
+.text_format{
+  font-family: inherit;   
+  font-size: inherit;     
+  line-height: inherit;   
+  color: inherit;         
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  margin: inherit;        
+  padding: inherit;       
+  border: none;           
+  background-color: inherit;
+  text-align: justify;
+}
