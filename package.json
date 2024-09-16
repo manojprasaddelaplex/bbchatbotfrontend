@@ -20,6 +20,7 @@
     "@types/react-dom": "^18.2.25",
     "axios": "^1.7.3",
     "chart.js": "^4.4.3",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",

@@ -58,13 +58,13 @@ function App() {
       if (data.text) {
         botMessage.text = data.text;
       } else if (data.type === 'doughnut' || data.type === 'bar') {
-        botMessage.text = `Here is a ${data.type === 'doughnut' ? 'chart' : 'graph'} you requested.`;
+        botMessage.text = data.tip != null ? data.tip : `Here is a ${data.type === 'doughnut' ? 'chart' : 'graph'} you requested.`;
         botMessage.chart = {
           type: data.type,
           data: {
             labels: data.labels,
             datasets: [{
-              label: 'Count',
+              label: data.y_axis,
               data: data.data,
               backgroundColor: Object.values(CHART_COLORS),
               borderWidth: 1,
@@ -73,7 +73,23 @@ function App() {
           },
           options: {
             responsive: true,
-            ...(data.type === 'doughnut' && { layout: { padding: 10 } })
+            ...(data.type === 'doughnut' && { layout: { padding: 10 } }),
+            ...(data.type === 'bar' && {
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: data.x_axis // X-axis title
+                  }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: data.y_axis // Y-axis title
+                  }
+                }
+              }
+            })
           }
         };
       } else if (data.headers && data.rows) {
@@ -84,6 +100,11 @@ function App() {
       // Extracting sql_query from the response
       if (sql_query) {
         botMessage.sql_query = sql_query;
+      }
+
+      if (data.similar_questions) {
+        const similarQuestions = data.similar_questions;
+        botMessage.similar_questions = similarQuestions;
       }
 
     } catch (error: any) {
