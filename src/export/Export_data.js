@@ -32,6 +32,12 @@ const ExportData = ({ message }) => {
                                 size: 14,
                             },
                         },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 5, // Add distance between labels and doughnut
+                            },
+                        },
                     },
                 },
             };
