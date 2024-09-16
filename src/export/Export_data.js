@@ -32,6 +32,12 @@ const ExportData = ({ message }) => {
                                 size: 14,
                             },
                         },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 5, // Add distance between labels and doughnut
+                            },
+                        },
                     },
                 },
             };
@@ -62,8 +68,14 @@ const ExportData = ({ message }) => {
                 // Wait for the chart to re-render with data labels
                 await new Promise(resolve => setTimeout(resolve, 100));
 
+                // Set desired width and height for the canvas
+                const width = 800; // Adjust this as needed
+                const height = 600; // Adjust this as needed
+
                 const canvas = await html2canvas(chartRef.current, {
-                    scale: 2,
+                    scale: 4, // Increase scale for better quality
+                    width, // Set explicit width
+                    height, // Set explicit height
                     useCORS: true,
                     backgroundColor: null,
                 });
@@ -72,7 +84,7 @@ const ExportData = ({ message }) => {
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [canvas.width, canvas.height],
+                    format: [width, height], // Use the same dimensions as the canvas
                 });
 
                 if (message.user_query) {
@@ -80,7 +92,8 @@ const ExportData = ({ message }) => {
                     pdf.text(`User Query: ${message.user_query}`, 10, 30);
                 }
 
-                pdf.addImage(imgData, 'PNG', 0, 40, canvas.width, canvas.height);
+                // Add the image to the PDF
+                pdf.addImage(imgData, 'PNG', 0, 40, width, height);
                 pdf.save(`chart-${new Date().toISOString()}.pdf`);
             } catch (error) {
                 console.error("Failed to download chart as PDF", error);
