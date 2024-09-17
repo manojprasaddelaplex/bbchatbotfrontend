@@ -88,7 +88,7 @@ const ExportData = ({ message }) => {
                 });
 
                 if (message.user_query) {
-                    pdf.setFontSize(25);
+                    pdf.setFontSize(16);
                     pdf.text(`User Query: ${message.user_query}`, 10, 30);
                 }
 
