@@ -8,7 +8,6 @@ import axios from 'axios';
 import { CHART_COLORS } from './assets/utils';
 import { DataGrid } from '@mui/x-data-grid';
 import Feedback from './feedback/Feedback';
-import { v4 as uuidv4 } from 'uuid';
 
 interface Message {
   text: string;
@@ -28,21 +27,8 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([{ text: 'Hello! How can I assist you today?', sender: 'bot' }]);
   const [loading, setLoading] = useState(false);
   const [resID, setResID] = useState('');
-  const [userId, setUserId] = useState('');
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Generate or retrieve user ID
-    const storedUserId = localStorage.getItem('chatbotUserId');
-    if (storedUserId) {
-      setUserId(storedUserId);
-    } else {
-      const newUserId = uuidv4();
-      setUserId(newUserId);
-      localStorage.setItem('chatbotUserId', newUserId);
-    }
-  }, []);
 
   const scrollToBottom = useCallback(() => {
     if (messagesContainerRef.current) {
@@ -65,7 +51,7 @@ function App() {
     let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
-      const response = await axios.post('https://blueberrychatbotbackend-dev.azurewebsites.net/query', { query, user_id: userId });
+      const response = await axios.post('https://blueberrychatbotbackend-dev.azurewebsites.net/query', { query });
       const { results: data, id, sql_query } = response.data;
       setResID(id);
 
