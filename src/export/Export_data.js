@@ -68,14 +68,16 @@ const ExportData = ({ message }) => {
                 // Wait for the chart to re-render with data labels
                 await new Promise(resolve => setTimeout(resolve, 100));
 
-                // Set desired width and height for the canvas
-                const width = 800; // Adjust this as needed
-                const height = 600; // Adjust this as needed
+                // Dynamically set the chart container dimensions
+                const chartContainer = chartRef.current;
+                const chartWidth = chartContainer.clientWidth;
+                const chartHeight = chartContainer.clientHeight;
 
-                const canvas = await html2canvas(chartRef.current, {
-                    scale: 4, // Increase scale for better quality
-                    width, // Set explicit width
-                    height, // Set explicit height
+                // Increase scale for better quality (e.g. scale: 4 means 4x resolution)
+                const canvas = await html2canvas(chartContainer, {
+                    scale: 5, // Increase scale for higher resolution
+                    width: chartWidth,
+                    height: chartHeight,
                     useCORS: true,
                     backgroundColor: null,
                 });
@@ -84,16 +86,18 @@ const ExportData = ({ message }) => {
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [width, height], // Use the same dimensions as the canvas
+                    format: [chartWidth + 100, chartHeight + 120], // Dynamically adjust PDF size
                 });
 
+                // Add user query text
                 if (message.user_query) {
                     pdf.setFontSize(16);
-                    pdf.text(`User Query: ${message.user_query}`, 10, 30);
+                    const splitUserQuery = pdf.splitTextToSize(`User Query: ${message.user_query}`, chartWidth); // Dynamic text wrapping
+                    pdf.text(splitUserQuery, 10, 30);
                 }
 
-                // Add the image to the PDF
-                pdf.addImage(imgData, 'PNG', 0, 40, width, height);
+                // Add the chart image to the PDF
+                pdf.addImage(imgData, 'PNG', 10, 50, chartWidth, chartHeight);
                 pdf.save(`chatbot-response-${new Date().toISOString()}.pdf`);
             } catch (error) {
                 console.error("Failed to download chart as PDF", error);
@@ -124,8 +128,8 @@ const ExportData = ({ message }) => {
                             position: 'fixed',
                             top: '-10000px',
                             left: '-10000px',
-                            width: '600px',
-                            height: '400px',
+                            width: 'auto', // Auto width to match the chart
+                            height: 'auto', // Auto height to match the chart
                             pointerEvents: 'none',
                         }}
                     >
