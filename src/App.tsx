@@ -65,7 +65,7 @@ function App() {
     let botMessage: Message = { text: '', sender: 'bot', user_query: query };
 
     try {
-      const response = await axios.post('https://blueberrychatbotbackend-stage.azurewebsites.net/query', { query, user_id: userId });
+      const response = await axios.post('https://blueberry.azurewebsites.net/query', { query, user_id: userId });
       const { results: data, id, sql_query } = response.data;
       setResID(id);
 
