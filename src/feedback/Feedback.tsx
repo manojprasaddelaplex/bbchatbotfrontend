@@ -20,7 +20,7 @@ const Feedback: React.FC<FeedbackProps> = ({ id, userQuestion }) => {
     const userQ = userQuestion;
     console.log(userQ)
     try {
-      await axios.post('https://blueberrychatbotbackend-stage.azurewebsites.net/feedback', {
+      await axios.post('https://blueberry.azurewebsites.net/feedback', {
         resID: resID,
         feedback: feedback,
         userQuestion: userQ
