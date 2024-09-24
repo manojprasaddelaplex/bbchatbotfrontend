@@ -138,7 +138,7 @@ function App() {
 
     setMessages(prev => [...prev, userMessage, botMessage]);
     setLoading(false);
-  }, [query]);
+  }, [query, userId]);
 
   const handleReset = useCallback(() => {
     setQuery('');
