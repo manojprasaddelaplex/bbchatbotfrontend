@@ -107,7 +107,7 @@ function App() {
           }
         };
       } else if (data.headers && data.rows) {
-        botMessage.text = `Here is a table you requested.`;
+        botMessage.text =data.tip != null ? data.tip : `Here is the answer for your question.`;
         botMessage.table = { headers: data.headers, rows: data.rows };
       }
 
@@ -234,7 +234,7 @@ function App() {
       <div className='chatbot-header'>
         <div className='flex-area'>
           <div className="icon-container">
-            <img src="sonar-logo.png" alt="Logo" />
+            <img src="appLogo.png" alt="Logo" />
           </div>
           <div className='right-content'>
             <p>Sonar ChatBot Develop</p>
