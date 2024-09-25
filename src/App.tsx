@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import './App.scss';
 import 'chart.js/auto';
 import { Chart } from 'react-chartjs-2';
-import { HeadsetMic as HeadsetMicIcon, Person as PersonIcon, RestartAlt as RestartAltIcon, Send as SendIcon } from '@mui/icons-material';
+import { Person as PersonIcon, RestartAlt as RestartAltIcon, Send as SendIcon } from '@mui/icons-material';
 import ExportData from './export/Export_data';
 import axios from 'axios';
 import { CHART_COLORS } from './assets/utils';
@@ -154,7 +154,7 @@ function App() {
       <div key={index} className='message-wrapper'>
         {isBot && (
           <div className="icon-container">
-            <HeadsetMicIcon />
+            <img src="botLogo.ico" alt="Logo" className='botIcon'/>
           </div>
         )}
         <div className={`${message.sender}-container`}>
@@ -234,7 +234,7 @@ function App() {
       <div className='chatbot-header'>
         <div className='flex-area'>
           <div className="icon-container">
-            <img src="appLogo.png" alt="Logo" />
+            <img src="sonar-logo.png" alt="Logo" />
           </div>
           <div className='right-content'>
             <p>Sonar ChatBot Develop</p>
@@ -247,7 +247,7 @@ function App() {
           <div className='bot-loading'>
             <div className='message-wrapper'>
               <div className="icon-container">
-                <HeadsetMicIcon />
+                <img src="botLogo.ico" alt="Logo" className='botIcon'/>
               </div>
               <div className='loading-message bot'>
                 <div className='padding-snippet'>
