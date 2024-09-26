@@ -128,7 +128,7 @@ const ExportData = ({ message }) => {
                             position: 'fixed',
                             top: '-10000px',
                             left: '-10000px',
-                            width: 'auto', // Auto width to match the chart
+                            width: 1000, // Auto width to match the chart
                             height: 'auto', // Auto height to match the chart
                             pointerEvents: 'none',
                         }}
